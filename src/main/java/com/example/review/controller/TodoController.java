@@ -11,34 +11,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/todos")
+@RequestMapping("/api/Todo_list")
 @RequiredArgsConstructor
 public class TodoController {
 
     private final TodoService todoService;
 
-    @GetMapping
+    @GetMapping("/searchAll")
     public List<TodoResponse> getAll() {
         return todoService.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public TodoResponse getById(@PathVariable Long id) {
         return todoService.findById(id);
     }
 
-    @PostMapping
+    @PostMapping("/insert")
     @ResponseStatus(HttpStatus.CREATED)
     public TodoResponse create(@RequestBody TodoCreateRequest request) {
         return todoService.create(request);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public TodoResponse update(@PathVariable Long id, @RequestBody TodoUpdateRequest request) {
         return todoService.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         todoService.delete(id);

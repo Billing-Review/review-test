@@ -16,7 +16,7 @@ on:
         required: true
         default: "master"
       api_paths:
-        description: "쉼표로 구분된 API 파일 경로 (예: src/main/.../OrderController.java)"
+        description: "쉼표로 구분된 REST API URL 경로 (예: /api/v1/orders,/api/v1/payments)"
         required: true
       url_hint:
         description: "위키 경로 힌트 (internal / external / 비워두면 자동)"

@@ -50,6 +50,25 @@ jobs:
       repo_name: ${{ github.repository }}
     secrets: inherit
 
+  wait-approval-diff:
+    name: "[검토] Dooray Draft 확인 후 Approve"
+    needs: create-draft-diff
+    environment: api-doc-approval
+    runs-on:
+      group: billing-dev
+    steps:
+      - name: 안내
+        run: echo "Dooray Draft를 검토한 뒤 이 화면에서 Approve를 눌러주세요."
+
+  publish-final-diff:
+    name: Publish to Dooray Wiki (Diff)
+    needs: [generate-from-diff, create-draft-diff, wait-approval-diff]
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-publish-final.yml@main
+    with:
+      api_key: ${{ needs.create-draft-diff.outputs.api_key }}
+      repo_name: ${{ github.repository }}
+    secrets: inherit
+
   # ── 수동 실행 (코드 기반) ─────────────────────────────────────────
   generate-from-code:
     name: Generate Doc from Code
@@ -73,5 +92,26 @@ jobs:
       doc_content: ${{ needs.generate-from-code.outputs.doc_content }}
       url_hint: ${{ needs.generate-from-code.outputs.url_hint }}
       api_key: ${{ needs.generate-from-code.outputs.api_key }}
+      repo_name: ${{ github.repository }}
+    secrets: inherit
+
+  wait-approval-code:
+    name: "[검토] Dooray Draft 확인 후 Approve"
+    needs: create-draft-code
+    if: github.event_name == 'workflow_dispatch'
+    environment: api-doc-approval
+    runs-on:
+      group: billing-dev
+    steps:
+      - name: 안내
+        run: echo "Dooray Draft를 검토한 뒤 이 화면에서 Approve를 눌러주세요."
+
+  publish-final-code:
+    name: Publish to Dooray Wiki (Code)
+    needs: [generate-from-code, create-draft-code, wait-approval-code]
+    if: github.event_name == 'workflow_dispatch'
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-publish-final.yml@main
+    with:
+      api_key: ${{ needs.create-draft-code.outputs.api_key }}
       repo_name: ${{ github.repository }}
     secrets: inherit

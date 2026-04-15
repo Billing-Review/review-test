@@ -37,6 +37,19 @@ jobs:
       repo_name: ${{ github.repository }}
     secrets: inherit
 
+  handle-deprecated:
+    name: Handle Deprecated APIs
+    needs: generate-from-diff
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      needs.generate-from-diff.outputs.has_deleted_endpoints == 'true'
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-deprecated-handler.yml@main
+    with:
+      repo_name: ${{ github.repository }}
+      deleted_endpoints: ${{ needs.generate-from-diff.outputs.deleted_endpoints }}
+    secrets: inherit
+
   create-draft-diff:
     name: Create Dooray Draft (Diff)
     needs: generate-from-diff

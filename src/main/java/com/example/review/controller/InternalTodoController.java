@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/internal/api/Todo_list")
+@RequestMapping("/internal/api/todo-list")
 @RequiredArgsConstructor
-public class TodoController {
+public class InternalTodoController {
 
     private final TodoService todoService;
 
-    @GetMapping("/searchAll")
+    @GetMapping("/search")
     public List<TodoResponse> getAll() {
         return todoService.findAll();
     }

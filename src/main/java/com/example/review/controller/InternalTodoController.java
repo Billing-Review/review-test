@@ -17,7 +17,7 @@ public class InternalTodoController {
 
     private final TodoService todoService;
 
-    @GetMapping("/search")
+    @GetMapping
     public List<TodoResponse> getAll() {
         return todoService.findAll();
     }

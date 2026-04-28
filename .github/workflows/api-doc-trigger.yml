@@ -1,14 +1,12 @@
-name: API Doc Auto Generation
+name: API Doc Generation
 
 on:
-  # PR merge 시 자동 트리거 (삭제된 API Deprecated 처리)
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, closed]
     branches:
       - master
       - develop
 
-  # 신규 API 문서 수동 생성 (코드 기반)
   workflow_dispatch:
     inputs:
       branch:
@@ -27,34 +25,38 @@ on:
         default: ""
 
 jobs:
-  # ── PR merge 자동 트리거: 삭제된 엔드포인트 감지 ──────────────────────
-  detect-deleted:
-    name: Detect Deleted Endpoints
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-    uses: dev-billing/shared-workflows/.github/workflows/reusable-doc-from-diff.yml@main
+  # ── PR open/synchronize: 변경된 API draft 자동 생성 ──────────────────────
+  generate-pr-drafts:
+    name: Generate PR API Doc Drafts
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' || github.event.action == 'synchronize')
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-generate-pr-drafts.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
       repo_name: ${{ github.repository }}
+      mode: "draft"
     secrets: inherit
 
-  handle-deprecated:
-    name: Handle Deprecated APIs
-    needs: detect-deleted
+  # ── PR merge: 삭제된 API deprecated 처리 ─────────────────────────────────
+  handle-deprecated-on-merge:
+    name: Handle Deprecated APIs on Merge
     if: |
       github.event_name == 'pull_request' &&
-      github.event.pull_request.merged == true &&
-      needs.detect-deleted.outputs.has_deleted_endpoints == 'true'
-    uses: dev-billing/shared-workflows/.github/workflows/reusable-deprecated-handler.yml@main
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-generate-pr-drafts.yml@main
     with:
+      pr_number: ${{ github.event.pull_request.number }}
       repo_name: ${{ github.repository }}
-      deleted_endpoints: ${{ needs.detect-deleted.outputs.deleted_endpoints }}
+      mode: "deprecated"
     secrets: inherit
 
-  # ── 수동 실행: 코드 기반 문서 생성 ────────────────────────────────────
-  generate-from-code:
-    name: Generate Doc from Code
+  # ── 수동 실행: 코드 기반 draft 생성 → approve → publish ─────────────────
+  create-draft-from-code:
+    name: Create Draft from Code
     if: github.event_name == 'workflow_dispatch'
-    uses: dev-billing/shared-workflows/.github/workflows/reusable-doc-from-code.yml@main
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-create-draft-from-code.yml@main
     with:
       repo_name: ${{ github.repository }}
       branch: ${{ inputs.branch }}
@@ -63,36 +65,25 @@ jobs:
       url_hint: ${{ inputs.url_hint }}
     secrets: inherit
 
-  create-draft-code:
-    name: Create Dooray Draft (Code)
-    needs: generate-from-code
-    if: github.event_name == 'workflow_dispatch'
-    uses: dev-billing/shared-workflows/.github/workflows/reusable-publish-to-dooray.yml@main
-    with:
-      title: ${{ needs.generate-from-code.outputs.title }}
-      doc_content: ${{ needs.generate-from-code.outputs.doc_content }}
-      url_hint: ${{ needs.generate-from-code.outputs.url_hint }}
-      api_key: ${{ needs.generate-from-code.outputs.api_key }}
-      repo_name: ${{ github.repository }}
-    secrets: inherit
-
-  wait-approval-code:
+  wait-approval:
     name: "[검토] Dooray Draft 확인 후 Approve"
-    needs: create-draft-code
+    needs: create-draft-from-code
     if: github.event_name == 'workflow_dispatch'
     environment: api-doc-approval
     runs-on:
       group: billing-dev
     steps:
       - name: 안내
-        run: echo "Dooray Draft를 검토한 뒤 이 화면에서 Approve를 눌러주세요."
+        run: |
+          echo "Draft URL: ${{ needs.create-draft-from-code.outputs.page_url }}"
+          echo "Dooray Draft를 검토한 뒤 이 화면에서 Approve를 눌러주세요."
 
-  publish-final-code:
-    name: Publish to Dooray Wiki (Code)
-    needs: [generate-from-code, create-draft-code, wait-approval-code]
+  publish-final:
+    name: Publish to Dooray Wiki
+    needs: [create-draft-from-code, wait-approval]
     if: github.event_name == 'workflow_dispatch'
     uses: dev-billing/shared-workflows/.github/workflows/reusable-publish-final.yml@main
     with:
-      api_key: ${{ needs.create-draft-code.outputs.api_key }}
+      api_key: ${{ needs.create-draft-from-code.outputs.api_key }}
       repo_name: ${{ github.repository }}
     secrets: inherit

@@ -17,7 +17,7 @@ public class ExternalTodoController {
 
     private final TodoService todoService;
 
-    @GetMapping("/find")
+    @GetMapping
     public List<TodoResponse> getAll() {
         return todoService.findAll();
     }
@@ -27,7 +27,7 @@ public class ExternalTodoController {
         return todoService.findById(id);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public TodoResponse create(@RequestBody TodoCreateRequest request) {
         return todoService.create(request);

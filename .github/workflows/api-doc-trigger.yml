@@ -2,7 +2,7 @@ name: API Doc Generation
 
 on:
   pull_request:
-    types: [opened, closed]
+    types: [opened, reopened, closed]
     branches:
       - master
       - develop
@@ -26,12 +26,12 @@ on:
         default: ""
 
 jobs:
-  # ── PR open: 변경된 API draft 초안 생성 (PR에서 미리 확인용) ────────────────
+  # ── PR open/reopen: 변경된 API draft 초안 생성 ───────────────────────────
   generate-pr-drafts:
     name: Generate PR API Doc Drafts
     if: |
       github.event_name == 'pull_request' &&
-      github.event.action == 'opened'
+      (github.event.action == 'opened' || github.event.action == 'reopened')
     uses: dev-billing/shared-workflows/.github/workflows/reusable-generate-pr-drafts.yml@main
     with:
       pr_number: ${{ github.event.pull_request.number }}
@@ -39,9 +39,9 @@ jobs:
       mode: "draft"
     secrets: inherit
 
-  # ── PR merge: 최종 코드 기준 draft 재생성 + 삭제 API deprecated 처리 ───────
+  # ── PR merge: 최종 코드 기준 draft 내용 최신화 + 삭제 API deprecated 처리 ──
   handle-on-merge:
-    name: Handle API Docs on Merge
+    name: Refresh Drafts on Merge
     if: |
       github.event_name == 'pull_request' &&
       github.event.action == 'closed' &&
@@ -51,6 +51,20 @@ jobs:
       pr_number: ${{ github.event.pull_request.number }}
       repo_name: ${{ github.repository }}
       mode: "all"
+    secrets: inherit
+
+  # ── PR close (미merge): draft 삭제 ────────────────────────────────────────
+  cleanup-on-close:
+    name: Cleanup Drafts on Close
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == false
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-generate-pr-drafts.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      repo_name: ${{ github.repository }}
+      mode: "delete_draft"
     secrets: inherit
 
   # ── 수동 실행: 코드 기반 draft 생성 → approve → publish ─────────────────

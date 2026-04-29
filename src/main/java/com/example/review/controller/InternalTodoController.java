@@ -22,12 +22,12 @@ public class InternalTodoController {
         return todoService.findAll();
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public TodoResponse getById(@PathVariable Long id) {
         return todoService.findById(id);
     }
 
-    @PostMapping("/insert")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TodoResponse create(@RequestBody TodoCreateRequest request) {
         return todoService.create(request);

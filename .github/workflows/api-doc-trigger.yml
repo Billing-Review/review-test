@@ -2,7 +2,7 @@ name: API Doc Generation
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, closed]
     branches:
       - master
       - develop
@@ -26,7 +26,20 @@ on:
         default: ""
 
 jobs:
-  # ── PR merge: 변경된 API draft 생성 + 삭제된 API deprecated 처리 ──────────
+  # ── PR open: 변경된 API draft 초안 생성 (PR에서 미리 확인용) ────────────────
+  generate-pr-drafts:
+    name: Generate PR API Doc Drafts
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'opened'
+    uses: dev-billing/shared-workflows/.github/workflows/reusable-generate-pr-drafts.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      repo_name: ${{ github.repository }}
+      mode: "draft"
+    secrets: inherit
+
+  # ── PR merge: 최종 코드 기준 draft 재생성 + 삭제 API deprecated 처리 ───────
   handle-on-merge:
     name: Handle API Docs on Merge
     if: |

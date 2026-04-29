@@ -17,28 +17,28 @@ public class ExternalTodoController {
 
     private final TodoService todoService;
 
-    @GetMapping("/search")
+    @GetMapping("/find")
     public List<TodoResponse> getAll() {
         return todoService.findAll();
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public TodoResponse getById(@PathVariable Long id) {
         return todoService.findById(id);
     }
 
-    @PostMapping("/insert")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TodoResponse create(@RequestBody TodoCreateRequest request) {
         return todoService.create(request);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public TodoResponse update(@PathVariable Long id, @RequestBody TodoUpdateRequest request) {
         return todoService.update(id, request);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         todoService.delete(id);

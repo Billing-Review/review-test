@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class TodoCreateRequest {
     private String title;
     private String content;
+    private java.time.LocalDate dueDate;
 }

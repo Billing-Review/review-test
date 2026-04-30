@@ -3,10 +3,12 @@ name: Sync AI Context
 on:
   push:
     branches: [develop]
+  workflow_dispatch:
 
 jobs:
   sync:
     uses: dev-billing/shared-workflows/.github/workflows/sync-ai-context.yml@main
     with:
       repo-name: ${{ github.event.repository.name }}
+      context-repo: billing-context
     secrets: inherit

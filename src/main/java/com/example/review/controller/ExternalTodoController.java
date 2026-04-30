@@ -25,10 +25,13 @@ public class ExternalTodoController {
     }
 
     @GetMapping("/statistics")
-    public Map<String, Long> getStatistics() {
-        List<TodoResponse> all = todoService.findAll();
-        long total = all.size();
-        long done = all.stream().filter(t -> t.getStatus() == TodoStatus.DONE).count();
+    public Map<String, Long> getStatistics(
+            @RequestParam(required = false) TodoStatus status) {
+        List<TodoResponse> targets = (status != null)
+                ? todoService.findAllByStatus(status)
+                : todoService.findAll();
+        long total = targets.size();
+        long done = targets.stream().filter(t -> t.getStatus() == TodoStatus.DONE).count();
         return Map.of("total", total, "done", done, "pending", total - done);
     }
 

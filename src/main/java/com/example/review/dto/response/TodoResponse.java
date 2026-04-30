@@ -5,6 +5,7 @@ import com.example.review.entity.Todo.TodoStatus;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,6 +15,8 @@ public class TodoResponse {
     private String title;
     private String content;
     private TodoStatus status;
+    private LocalDate dueDate;
+    private Integer priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -23,6 +26,8 @@ public class TodoResponse {
                 .title(todo.getTitle())
                 .content(todo.getContent())
                 .status(todo.getStatus())
+                .dueDate(todo.getDueDate())
+                .priority(todo.getPriority())
                 .createdAt(todo.getCreatedAt())
                 .updatedAt(todo.getUpdatedAt())
                 .build();

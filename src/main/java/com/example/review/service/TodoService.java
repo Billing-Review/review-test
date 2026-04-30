@@ -4,6 +4,7 @@ import com.example.review.dto.request.TodoCreateRequest;
 import com.example.review.dto.request.TodoUpdateRequest;
 import com.example.review.dto.response.TodoResponse;
 import com.example.review.entity.Todo;
+import com.example.review.entity.Todo.TodoStatus;
 import com.example.review.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,13 @@ public class TodoService {
                 .toList();
     }
 
+    public List<TodoResponse> findAllByStatus(TodoStatus status) {
+        return todoRepository.findAll().stream()
+                .filter(t -> t.getStatus() == status)
+                .map(TodoResponse::from)
+                .toList();
+    }
+
     public TodoResponse findById(Long id) {
         return TodoResponse.from(getTodo(id));
     }
@@ -33,6 +41,8 @@ public class TodoService {
         Todo todo = Todo.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .dueDate(request.getDueDate())
+                .priority(request.getPriority())
                 .build();
         return TodoResponse.from(todoRepository.save(todo));
     }
@@ -40,7 +50,7 @@ public class TodoService {
     @Transactional
     public TodoResponse update(Long id, TodoUpdateRequest request) {
         Todo todo = getTodo(id);
-        todo.update(request.getTitle(), request.getContent());
+        todo.update(request.getTitle(), request.getContent(), request.getDueDate(), request.getPriority());
         if (request.getStatus() != null) {
             todo.updateStatus(request.getStatus());
         }

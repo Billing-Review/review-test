@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +31,11 @@ public class Todo {
     @Builder.Default
     private TodoStatus status = TodoStatus.TODO;
 
+    private LocalDate dueDate;
+
+    @Column
+    private Integer priority;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -40,9 +46,11 @@ public class Todo {
         TODO, IN_PROGRESS, DONE
     }
 
-    public void update(String title, String content) {
+    public void update(String title, String content, LocalDate dueDate, Integer priority) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
+        if (dueDate != null) this.dueDate = dueDate;
+        if (priority != null) this.priority = priority;
     }
 
     public void updateStatus(TodoStatus status) {

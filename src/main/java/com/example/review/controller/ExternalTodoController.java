@@ -26,10 +26,16 @@ public class ExternalTodoController {
 
     @GetMapping("/statistics")
     public Map<String, Long> getStatistics(
-            @RequestParam(required = false) TodoStatus status) {
+            @RequestParam(required = false) TodoStatus status,
+            @RequestParam(required = false) Integer minPriority) {
         List<TodoResponse> targets = (status != null)
                 ? todoService.findAllByStatus(status)
                 : todoService.findAll();
+        if (minPriority != null) {
+            targets = targets.stream()
+                    .filter(t -> t.getPriority() != null && t.getPriority() >= minPriority)
+                    .toList();
+        }
         long total = targets.size();
         long done = targets.stream().filter(t -> t.getStatus() == TodoStatus.DONE).count();
         return Map.of("total", total, "done", done, "pending", total - done);
@@ -42,8 +48,11 @@ public class ExternalTodoController {
     }
 
     @PatchMapping("/{id}")
-    public TodoResponse update(@PathVariable Long id, @RequestBody TodoUpdateRequest request) {
-        return todoService.update(id, request);
+    public TodoResponse update(
+            @PathVariable Long id,
+            @RequestBody TodoUpdateRequest request,
+            @RequestParam(required = false) List<String> fields) {
+        return todoService.update(id, request, fields);
     }
 
     @DeleteMapping("/{id}")

@@ -6,10 +6,6 @@ on:
       api_key:
         description: "publish할 API 키 (예: GET /api/v1/todos)"
         required: true
-      branch:
-        description: "코드를 읽을 브랜치 (draft 없을 때만 사용, 기본값: master)"
-        required: false
-        default: "master"
 
 jobs:
   publish:
@@ -18,5 +14,4 @@ jobs:
     with:
       api_key: ${{ inputs.api_key }}
       repo_name: ${{ github.repository }}
-      branch: ${{ inputs.branch }}
     secrets: inherit

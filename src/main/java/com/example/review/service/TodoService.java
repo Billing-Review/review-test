@@ -49,9 +49,20 @@ public class TodoService {
 
     @Transactional
     public TodoResponse update(Long id, TodoUpdateRequest request) {
+        return update(id, request, null);
+    }
+
+    @Transactional
+    public TodoResponse update(Long id, TodoUpdateRequest request, List<String> fields) {
         Todo todo = getTodo(id);
-        todo.update(request.getTitle(), request.getContent(), request.getDueDate(), request.getPriority());
-        if (request.getStatus() != null) {
+        boolean updateAll = fields == null || fields.isEmpty();
+        todo.update(
+                updateAll || fields.contains("title") ? request.getTitle() : null,
+                updateAll || fields.contains("content") ? request.getContent() : null,
+                updateAll || fields.contains("dueDate") ? request.getDueDate() : null,
+                updateAll || fields.contains("priority") ? request.getPriority() : null
+        );
+        if (request.getStatus() != null && (updateAll || fields.contains("status"))) {
             todo.updateStatus(request.getStatus());
         }
         return TodoResponse.from(todo);

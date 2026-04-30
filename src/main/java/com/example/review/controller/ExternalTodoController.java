@@ -3,12 +3,14 @@ package com.example.review.controller;
 import com.example.review.dto.request.TodoCreateRequest;
 import com.example.review.dto.request.TodoUpdateRequest;
 import com.example.review.dto.response.TodoResponse;
+import com.example.review.entity.Todo.TodoStatus;
 import com.example.review.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/external/api/todo-list")
@@ -17,14 +19,17 @@ public class ExternalTodoController {
 
     private final TodoService todoService;
 
-    @GetMapping
-    public List<TodoResponse> getAll() {
-        return todoService.findAll();
-    }
-
     @GetMapping("/{id}")
     public TodoResponse getById(@PathVariable Long id) {
         return todoService.findById(id);
+    }
+
+    @GetMapping("/statistics")
+    public Map<String, Long> getStatistics() {
+        List<TodoResponse> all = todoService.findAll();
+        long total = all.size();
+        long done = all.stream().filter(t -> t.getStatus() == TodoStatus.DONE).count();
+        return Map.of("total", total, "done", done, "pending", total - done);
     }
 
     @PostMapping("/create")
@@ -33,7 +38,7 @@ public class ExternalTodoController {
         return todoService.create(request);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public TodoResponse update(@PathVariable Long id, @RequestBody TodoUpdateRequest request) {
         return todoService.update(id, request);
     }

@@ -60,4 +60,14 @@ public class ExternalTodoController {
     public void delete(@PathVariable Long id) {
         todoService.delete(id);
     }
+
+    @GetMapping("/search")
+    public List<TodoResponse> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) TodoStatus status) {
+        return todoService.findAll().stream()
+                .filter(t -> status == null || t.getStatus() == status)
+                .filter(t -> keyword == null || t.getTitle().contains(keyword))
+                .toList();
+    }
 }

@@ -69,6 +69,13 @@ public class TodoService {
     }
 
     @Transactional
+    public TodoResponse complete(Long id) {
+        Todo todo = getTodo(id);
+        todo.updateStatus(TodoStatus.DONE);
+        return TodoResponse.from(todo);
+    }
+
+    @Transactional
     public void delete(Long id) {
         todoRepository.delete(getTodo(id));
     }

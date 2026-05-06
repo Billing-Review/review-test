@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,8 @@ public class ExternalTodoController {
     @GetMapping("/statistics")
     public Map<String, Long> getStatistics(
             @RequestParam(required = false) TodoStatus status,
-            @RequestParam(required = false) Integer minPriority) {
+            @RequestParam(required = false) Integer minPriority,
+            @RequestParam(required = false, defaultValue = "false") boolean includeDueToday) {
         List<TodoResponse> targets = (status != null)
                 ? todoService.findAllByStatus(status)
                 : todoService.findAll();
@@ -38,7 +40,12 @@ public class ExternalTodoController {
         }
         long total = targets.size();
         long done = targets.stream().filter(t -> t.getStatus() == TodoStatus.DONE).count();
-        return Map.of("total", total, "done", done, "pending", total - done);
+        long dueToday = includeDueToday
+                ? targets.stream().filter(t -> LocalDate.now().equals(t.getDueDate())).count()
+                : 0L;
+        return includeDueToday
+                ? Map.of("total", total, "done", done, "pending", total - done, "dueToday", dueToday)
+                : Map.of("total", total, "done", done, "pending", total - done);
     }
 
     @PostMapping("/create")

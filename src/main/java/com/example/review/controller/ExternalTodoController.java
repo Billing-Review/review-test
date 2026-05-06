@@ -55,6 +55,11 @@ public class ExternalTodoController {
         return todoService.update(id, request, fields);
     }
 
+    @PostMapping("/{id}/complete")
+    public TodoResponse complete(@PathVariable Long id) {
+        return todoService.complete(id);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

@@ -21,7 +21,7 @@ public class ExternalTodoController {
 
     /**
      * Todo 단건 조회
-     * @docUrl external
+     * @apiScope external
      *
      * 지정한 ID의 Todo 항목을 반환합니다.
      * 존재하지 않는 ID 요청 시 404를 반환합니다.
@@ -36,7 +36,7 @@ public class ExternalTodoController {
 
     /**
      * Todo 통계 조회
-     * @docUrl external
+     * @apiScope external
      *
      * 전체 또는 필터링된 Todo의 상태별 집계를 반환합니다.
      *
@@ -63,7 +63,7 @@ public class ExternalTodoController {
 
     /**
      * Todo 생성
-     * @docUrl external
+     * @apiScope external
      *
      * 새로운 Todo 항목을 생성합니다.
      * 생성된 항목의 초기 상태는 TODO입니다.
@@ -79,7 +79,7 @@ public class ExternalTodoController {
 
     /**
      * Todo 수정
-     * @docUrl external
+     * @apiScope external
      *
      * 지정한 ID의 Todo 항목을 수정합니다.
      * fields 파라미터로 수정할 필드를 한정할 수 있으며, 미입력 시 전체 필드를 덮어씁니다.
@@ -99,7 +99,7 @@ public class ExternalTodoController {
 
     /**
      * Todo 삭제
-     * @docUrl external
+     * @apiScope external
      *
      * 지정한 ID의 Todo 항목을 영구 삭제합니다.
      * 삭제된 항목은 복구할 수 없습니다.

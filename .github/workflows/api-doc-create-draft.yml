@@ -7,9 +7,9 @@ on:
         description: "Draft를 생성할 API 키 (예: GET /api/v1/todos)"
         required: true
       branch:
-        description: "코드를 읽을 브랜치 (기본값: master)"
+        description: "코드를 읽을 브랜치 (기본값: develop)"
         required: false
-        default: "master"
+        default: "develop"
 
 jobs:
   create-draft:

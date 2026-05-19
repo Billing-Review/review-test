@@ -4,9 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, closed]
     branches:
-      - master
       - develop
-      - test/api-doc-workflow
 
 jobs:
   # ── PR open/reopen: 변경된 API draft 초안 생성 ───────────────────────────
